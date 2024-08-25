@@ -1,3 +1,5 @@
+require('../po/pageManager/pageManagerConfig');
+
 exports.config = {
     runner: 'local',
     specs: [
