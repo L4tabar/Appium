@@ -1,11 +1,11 @@
 const PageObject = require('../PageObject');
+const poHelper = require("../../utils/poHelper");
+const {join} = require("path");
 
 class SearchPage extends PageObject {
     constructor() {
         super("Search Page");
-        this.elements = {
-            "Search Bar": "//*[@resource-id=\"com.google.android.deskclock:id/search_empty_view\"]",
-        }
+        this.elements = poHelper.readSelectors(join(__dirname, "selectors.json"));
     }
 }
 
