@@ -1,6 +1,8 @@
 {
-  "Action Bar": "//*[@resource-id=\"com.google.android.deskclock:id/action_bar_title\"]",
-  "Clock": "//*[@resource-id=\"com.google.android.deskclock:id/digital_clock\"]",
-  "Date": "//*[@resource-id=\"com.google.android.deskclock:id/date_and_next_alarm\"]",
-  "Add Button": "//android.widget.Button[@content-desc=\"Add city\"]"
+  "selector": "//*[@resource-id=\"com.google.android.deskclock:id/desk_clock_pager_frame\"]",
+  "children": {
+    "Clock": "//*[@resource-id=\"com.google.android.deskclock:id/digital_clock\"]",
+    "Date": "//*[@resource-id=\"com.google.android.deskclock:id/date_and_next_alarm\"]",
+    "Add Button": "//android.widget.Button[@content-desc=\"Add city\"]"
+  }
 }

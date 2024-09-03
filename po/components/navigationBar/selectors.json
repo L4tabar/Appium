@@ -1,0 +1,6 @@
+{
+  "selector": "//*[@resource-id=\"com.google.android.deskclock:id/navigation_bar\"]",
+  "children": {
+    "Alarm": "//*[@resource-id=\"com.google.android.deskclock:id/tab_menu_alarm\"]"
+  }
+}

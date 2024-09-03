@@ -1,11 +1,11 @@
-const PageObject = require('../pageObject');
+const RootPage = require('../rootPage');
 const poHelper = require('../../utils/poHelper');
 const {join} = require("path");
 
-class MainPage extends PageObject {
+class MainPage extends RootPage {
     constructor() {
         super("Main Page");
-        this.elements = poHelper.readSelectors(join(__dirname, "selectors.json"));
+        this.elements.children["Main Page"] = poHelper.readSelectors(join(__dirname, "selectors.json"));
     }
 }
 
