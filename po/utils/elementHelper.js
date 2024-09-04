@@ -1,73 +1,71 @@
 const PageManager = require('../pageManager/pageManager');
 
-function selectorBuilder(elements, keys) {
-    let currentObject = elements;
+function selectorBuilder(elementsTree, keys) {
+    let currentElements = elementsTree;
     const selectors = [];
-    selectors.push(currentObject.selector);
+    selectors.push(currentElements.selector);
 
     for (let key of keys) {
-        currentObject = currentObject.children[key];
+        currentElements = currentElements.children[key];
         selectors.push(
-            typeof currentObject === 'string'
-                ? currentObject
-                : currentObject.selector
+            typeof currentElements === 'string'
+                ? currentElements
+                : currentElements.selector
         );
     }
 
     return selectors.join(' ').trim();
 }
 
-function isArrayInOrder(mainArray, subArray) {
-    if (mainArray.length < 1) {
-        return false;
-    }
+function isTheLastElementDifferent(firstArray, secondArray) {
+    return firstArray[firstArray.length - 1] !== secondArray[secondArray.length - 1];
+}
 
-    if (subArray[subArray.length - 1] !== mainArray[mainArray.length - 1]) {
-        return false;
-    }
+function areTheElementsProperlyNested(fullPath, relativePath) {
+    if (fullPath.length < 1 || isTheLastElementDifferent(fullPath, relativePath)) return false;
 
     let subIndex = 0;
-    for (let item of mainArray) {
-        if (item === subArray[subIndex]) {
+    for (let item of fullPath) {
+        if (item === relativePath[subIndex]) {
             subIndex++;
-        }
-        if (subIndex === subArray.length) {
-            return true;
+            if (subIndex === relativePath.length) return true;
         }
     }
 
     return false;
 }
 
-function getElementPaths(fullPaths, fullQuery, remainingQuery, path, elementsObj) {
-    for (let k in elementsObj) {
-        const newPath = JSON.parse(JSON.stringify(path));
-        newPath.push(k);
+function getPathsToAnElement(querySelectorParts, elementsObj, path = []) {
+    let fullPathsToAnElement = [];
+    for (let key in elementsObj) {
+        const newPath = [...path, key];
 
-        if (isArrayInOrder(newPath, fullQuery)) {
-            fullPaths.push(newPath);
+        if (areTheElementsProperlyNested(newPath, querySelectorParts)) {
+            fullPathsToAnElement.push(newPath);
         }
 
-        if (fullPaths.length > 1) {
-            throw new Error(`Not unique query selector!
-            The ${fullQuery} can be found at multiple paths: \n
-            ${fullPaths.join('\n')}`);
-        }
-
-        if (typeof elementsObj[k] === 'object' && elementsObj[k] !== null && elementsObj[k].children !== undefined) {
-            getElementPaths(fullPaths, fullQuery, JSON.parse(JSON.stringify(remainingQuery)), newPath, elementsObj[k].children);
+        if (typeof elementsObj[key] === 'object' && elementsObj[key] !== null && elementsObj[key].children) {
+            const childPaths = getPathsToAnElement(querySelectorParts, elementsObj[key].children, newPath);
+            fullPathsToAnElement = fullPathsToAnElement.concat(childPaths);
         }
     }
+    return fullPathsToAnElement;
 }
 
 
 async function getElement(elementQuery) {
-    const fullPath = [];
-    const elements = PageManager.currentPage.elements;
-    const queryParts = elementQuery.split(' in ');
-    getElementPaths(fullPath, queryParts.reverse(), JSON.parse(JSON.stringify(queryParts)), [], elements.children);
+    const querySelectorParts = elementQuery.split(' in ').reverse();
+    const fullPathsToAnElement = getPathsToAnElement(querySelectorParts, PageManager.currentPage.elements.children);
 
-    return $(selectorBuilder(elements, fullPath[0]));
+    if (fullPathsToAnElement.length > 1) {
+        throw new Error(`Not unique query selector!
+            The query '${elementQuery}' can be found at multiple paths:
+            ${fullPathsToAnElement.map(path => path.join(' > ')).join('\n')}`);
+    } else if (fullPathsToAnElement.length === 0) {
+        throw new Error(`No matching elements found for the query '${elementQuery}'.`);
+    }
+
+    return $(selectorBuilder(PageManager.currentPage.elements, fullPathsToAnElement[0]));
 }
 
 module.exports = {

@@ -2,40 +2,40 @@ const fs = require('fs');
 const path = require('path');
 
 function readJson(filePath) {
-    const fileData = fs.readFileSync(filePath);
-
-    return JSON.parse(fileData);
+    return JSON.parse(fs.readFileSync(filePath));
 }
 
 function mergeObjects(baseObj, extendObj) {
+    let newObj = {...baseObj};
     for (const key in extendObj) {
-        if (baseObj.hasOwnProperty(key) && typeof baseObj[key] === 'object' && typeof extendObj[key] === 'object') {
-            mergeObjects(baseObj[key], extendObj[key]);
-        } else if (!baseObj.hasOwnProperty(key)) {
-            baseObj[key] = extendObj[key];
+        if (newObj.hasOwnProperty(key) && typeof newObj[key] === 'object' && typeof extendObj[key] === 'object') {
+            newObj[key] = mergeObjects(newObj[key], extendObj[key]);
+        } else {
+            newObj[key] = extendObj[key];
         }
     }
+    return newObj;
 }
 
 function resolveExtends(obj, basePath) {
-    for (const key in obj) {
-        if (obj[key] && typeof obj[key] === 'object') {
-            if (obj[key].extends) {
-                const extendedPath = path.resolve(basePath, obj[key].extends);
+    let newObj = {...obj};
+    for (const key in newObj) {
+        if (newObj[key] && typeof newObj[key] === 'object') {
+            if (newObj[key].extends) {
+                const extendedPath = path.resolve(basePath, newObj[key].extends);
                 const extendedData = readJson(extendedPath);
-                delete obj[key].extends;
-                mergeObjects(obj[key], extendedData);
+                delete newObj[key].extends;
+                newObj[key] = mergeObjects(newObj[key], extendedData);
             } else {
-                resolveExtends(obj[key], basePath);
+                newObj[key] = resolveExtends(newObj[key], basePath);
             }
         }
     }
+    return newObj;
 }
-function readSelectors(filePath) {
-    const data = readJson(filePath);
-    resolveExtends(data, filePath);
 
-    return data;
+function readSelectors(filePath) {
+    return resolveExtends(readJson(filePath), filePath);
 }
 
 module.exports = {
