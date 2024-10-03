@@ -1,0 +1,6 @@
+{
+  "selector": "",
+  "children": {
+    "Page Title": "//*[@resource-id=\"com.google.android.deskclock:id/action_bar_title\"]"
+  }
+}

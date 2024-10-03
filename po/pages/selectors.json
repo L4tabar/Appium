@@ -1,0 +1,9 @@
+{
+  "selector": "//*[@resource-id=\"android:id/content\"]",
+  "children": {
+    "Navigation Bar": {
+      "extends": "../../components/navigationBar/selectors.json"
+    },
+    "Action Bar": "//*[@resource-id=\"com.google.android.deskclock:id/action_bar_title\"]"
+  }
+}

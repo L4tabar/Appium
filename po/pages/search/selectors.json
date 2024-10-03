@@ -1,3 +1,6 @@
 {
-  "Search Bar": "//*[@resource-id=\"com.google.android.deskclock:id/search_empty_view\"]",
+  "selector": "",
+  "children": {
+    "Search Bar": "//*[@resource-id=\"com.google.android.deskclock:id/search_empty_view\"]"
+  }
 }
